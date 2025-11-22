@@ -1,6 +1,9 @@
 (ns clj.todo_app.core
   (:require [ring.adapter.jetty :as jetty]        ;; 1. O software do Servidor (Jetty)
-            [reitit.ring :as ring]            ;; 2. O Roteador (Reitit)
+            [reitit.ring :as ring] 
+            [ring.middleware.json :refer [wrap-json-response wrap-json-body]]
+            [ring.middleware.keyword-params :refer [wrap-keyword-params]]
+            [ring.middleware.params :refer [wrap-params]]           ;; 2. O Roteador (Reitit)
             [clj.todo_app.handler :as handler])  ;; 3. Nossas funções (handler.clj)
   
   ;; 4. IMPORTANTE: Para o 'clj -M:run' funcionar
@@ -12,7 +15,13 @@
 ;; com o método :get, deve executar nossa função handler/hello-handler.
 (def app-routes
   (ring/router
-   [["/api/hello" {:get {:handler handler/hello-handler}}]]))
+   ["/api"
+    ["/hello" {:get {:handler handler/hello-handler}}]
+
+    ["/todos"
+     {:get {:handler handler/list-todos-handler}   ;; GET chama 'list'
+      :post {:handler handler/create-todo-handler}}]] ;; POST chama 'create'
+   ))
 
 ;; --- 2. Definição da Aplicação (App) ---
 ;; Criamos o 'app' final, que é a função Ring principal.
@@ -20,7 +29,20 @@
   (ring/ring-handler
    app-routes ;; Nossas rotas
    (ring/create-default-handler) ;; Um handler padrão para 404 (Not Found)
-   ))
+   {:middleware [;; 1. Converte a *resposta* (nosso mapa) em JSON
+                 wrap-json-response
+                 
+                 ;; 2. Converte o *corpo* da requisição (JSON) 
+                 ;;    e o coloca em :body
+                 [wrap-json-body {:keywords? true}]
+                 
+                 ;; 3. Converte chaves de string "foo" para :keywords :foo
+                 ;;    (Necessário para o wrap-json-body)
+                 wrap-keyword-params
+                 
+                 ;; 4. Habilita a leitura de parâmetros de URL (ex: /user?id=1)
+                 wrap-params
+                ]}))
 
 ;; --- 3. Função para Iniciar o Servidor ---
 ;; Uma função auxiliar que inicia o Jetty.
