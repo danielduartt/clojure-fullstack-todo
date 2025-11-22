@@ -2,7 +2,6 @@
 
 ![Clojure](https://img.shields.io/badge/Clojure-blue?style=for-the-badge&logo=clojure&logoColor=white)
 ![ClojureScript](https://img.shields.io/badge/ClojureScript-96CA2D?style=for-the-badge&logo=clojure&logoColor=white)
-![Status](https://img.shields.io/badge/Status-Concluído-success?style=for-the-badge)
 
 ## 📖 Sobre o Projeto
 
