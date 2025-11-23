@@ -135,6 +135,30 @@ body {
 .todo-item:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,0.35); }
 .todo-item.completed { opacity: 0.65; text-decoration: line-through; }
 
+/* Checkbox */
+.checkbox {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+}
+
+/* Delete Button */
+.delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+  opacity: 0.6;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.delete-btn:hover { opacity: 1; background: rgba(255,95,86,0.15); }
+
 /* Status Badges */
 .badge {
   font-size: 0.65rem;

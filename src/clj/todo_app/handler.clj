@@ -41,3 +41,11 @@
     (db/delete-todo id)
     {:status 204
      :body nil}))
+
+(defn toggle-todo-handler
+  "Handler para a rota PATCH /api/todos/:id/toggle."
+  [request]
+  (let [id (Integer/parseInt (get-in request [:path-params :id]))
+        updated-todo (db/toggle-todo-completed id)]
+    {:status 200
+     :body (first (unqualify-keys [updated-todo]))}))

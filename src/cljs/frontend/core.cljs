@@ -63,6 +63,16 @@
       (.catch (fn [e]
                 (swap! app-state assoc :error (.-message e) :saving false)))))
 
+(defn toggle-todo-backend [id]
+  (swap! app-state assoc :saving true :error nil)
+  (-> (fetch-json (str api-url "/todos/" id "/toggle") {:method "PATCH"})
+      (.then (fn [_]
+               (get-todos)))
+      (.then (fn [_]
+               (swap! app-state assoc :saving false)))
+      (.catch (fn [e]
+                (swap! app-state assoc :error (.-message e) :saving false)))))
+
 ;; --- 3. Componentes ---
 (defn theme-toggle []
   [:button.theme-toggle
@@ -87,9 +97,15 @@
 (defn todo-list []
   [:ul.todo-list
    (for [todo (:todos @app-state)]
-     (let [title (or (:title todo) (:todos/title todo) "(sem título)")]
+     (let [title (or (:title todo) (:todos/title todo) "(sem título)")
+           completed (boolean (:completed todo))]
        ^{:key (:id todo)}
-       [:li.todo-item
+       [:li.todo-item {:class (when completed "completed")}
+        [:input.checkbox 
+         {:type "checkbox"
+          :checked completed
+          :on-change #(toggle-todo-backend (:id todo))
+          :aria-label (str "Marcar " title " como concluído")}]
         [:span title]
         [:button.delete-btn 
          {:on-click #(delete-todo-backend (:id todo))

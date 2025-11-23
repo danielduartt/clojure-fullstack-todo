@@ -57,3 +57,11 @@
   "Deleta um 'todo' do banco por ID."
   [id]
   (jdbc/execute! db-spec ["DELETE FROM todos WHERE id = ?" id]))
+
+(defn toggle-todo-completed
+  "Alterna o status de conclusão de um 'todo'."
+  [id]
+  (let [todo (jdbc/execute-one! db-spec ["SELECT completed FROM todos WHERE id = ?" id])
+        new-completed (if (zero? (:todos/completed todo)) 1 0)]
+    (jdbc/execute-one! db-spec ["UPDATE todos SET completed = ? WHERE id = ?" new-completed id]
+                       {:return-keys true})))

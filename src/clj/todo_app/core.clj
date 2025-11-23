@@ -21,7 +21,8 @@
     ["/hello" {:get {:handler handler/hello-handler}}]
     ["/todos" {:get {:handler handler/list-todos-handler}
                :post {:handler handler/create-todo-handler}}]
-    ["/todos/:id" {:delete {:handler handler/delete-todo-handler}}]]))
+    ["/todos/:id" {:delete {:handler handler/delete-todo-handler}}]
+    ["/todos/:id/toggle" {:patch {:handler handler/toggle-todo-handler}}]]))
 ;; --- 2. Definição da Aplicação (App) ---
 ;; Criamos o 'app' final, que é a função Ring principal.
 (def app
@@ -31,7 +32,7 @@
    {:middleware [;; --- ADICIONE ESTE VETOR ---
                  ;; Ele deve ser o primeiro da lista
                  [wrap-cors :access-control-allow-origin [#"http://localhost:8000"]
-                            :access-control-allow-methods [:get :post :delete]]
+                            :access-control-allow-methods [:get :post :delete :patch]]
                  wrap-json-response
                  [wrap-json-body {:keywords? true}]
                  wrap-params
