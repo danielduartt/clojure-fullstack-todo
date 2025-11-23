@@ -1,11 +1,7 @@
 (ns cljs.frontend.core
   (:require [reagent.core :as r]
             [reagent.dom.client :as rdom]
-            [clojure.string :as str]
-            [cljs.core.async]
-            [cljs.core.async.interop])
-  (:require-macros [cljs.core.async.macros :refer [go]]
-                   [cljs.core.async.interop :refer [<p!]]))
+            [clojure.string :as str]))
 
 ;; --- 1. O "Cérebro" (O r/atom) ---
 (defonce app-state (r/atom {:input-text ""
@@ -28,13 +24,14 @@
 
 (defn get-todos []
   (swap! app-state assoc :loading true :error nil)
-  (go
-    (try
-      (let [response (<p! (fetch-json (str api-url "/todos") {:method "GET"}))]
-        (swap! app-state assoc :todos (:todos response) :loading false)
-        (js/console.log "[DEBUG] Todos carregados:" (clj->js (:todos @app-state))))
-      (catch js/Error e
-        (swap! app-state assoc :error (.-message e) :loading false)))))
+  (let [response-promise
+        (-> (fetch-json (str api-url "/todos") {:method "GET"})
+            (.then (fn [response]
+                     (swap! app-state assoc :todos (:todos response) :loading false)
+                     (js/console.log "[DEBUG] Todos carregados:" (clj->js (:todos @app-state)))))
+            (.catch (fn [e]
+                      (swap! app-state assoc :error (.-message e) :loading false))))]
+    response-promise))
 
 ;; Funções de toggle/delete removidas para reverter ao estado anterior
 
@@ -42,28 +39,27 @@
   (let [title (:input-text @app-state)]
     (when-not (str/blank? title)
       (swap! app-state assoc :saving true :error nil)
-      (go
-        (try
-          (let [_ (<p! (fetch-json (str api-url "/todos")
-                                   {:method "POST"
-                                    :headers {"Content-Type" "application/json"}
-                                    :body (js/JSON.stringify #js {:title title})}))]
-            (swap! app-state assoc :input-text "")
-            (get-todos)
-            (swap! app-state assoc :saving false))
-          (catch js/Error e
-            (swap! app-state assoc :error (.-message e) :saving false)))))))
+      (-> (fetch-json (str api-url "/todos")
+                      {:method "POST"
+                       :headers {"Content-Type" "application/json"}
+                       :body (js/JSON.stringify #js {:title title})})
+          (.then (fn [_]
+                   (swap! app-state assoc :input-text "")
+                   (get-todos)))
+          (.then (fn [_]
+                   (swap! app-state assoc :saving false)))
+          (.catch (fn [e]
+                    (swap! app-state assoc :error (.-message e) :saving false)))))))
 
 (defn delete-todo-backend [id]
   (swap! app-state assoc :saving true :error nil)
-  (go
-    (try
-      (let [_ (<p! (fetch-json (str api-url "/todos/" id)
-                               {:method "DELETE"}))]
-        (get-todos)
-        (swap! app-state assoc :saving false))
-      (catch js/Error e
-        (swap! app-state assoc :error (.-message e) :saving false)))))
+  (-> (fetch-json (str api-url "/todos/" id) {:method "DELETE"})
+      (.then (fn [_]
+               (get-todos)))
+      (.then (fn [_]
+               (swap! app-state assoc :saving false)))
+      (.catch (fn [e]
+                (swap! app-state assoc :error (.-message e) :saving false)))))
 
 ;; --- 3. Componentes ---
 (defn theme-toggle []
