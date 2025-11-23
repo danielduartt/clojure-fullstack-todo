@@ -18,8 +18,10 @@
       (.then (fn [response]
                (when-not (.-ok response)
                  (throw (js/Error. (str "HTTP error: " (.-status response)))))
-               (.json response)))
-      ;; A CORREÇÃO ESTÁ AQUI:
+               ;; Se for 204 No Content, não tenta parsear JSON
+               (if (= 204 (.-status response))
+                 #js {}
+                 (.json response))))
       (.then #(js->clj % :keywordize-keys true))))
 
 (defn get-todos []
