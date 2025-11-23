@@ -54,6 +54,17 @@
           (catch js/Error e
             (swap! app-state assoc :error (.-message e) :saving false)))))))
 
+(defn delete-todo-backend [id]
+  (swap! app-state assoc :saving true :error nil)
+  (go
+    (try
+      (let [_ (<p! (fetch-json (str api-url "/todos/" id)
+                               {:method "DELETE"}))]
+        (get-todos)
+        (swap! app-state assoc :saving false))
+      (catch js/Error e
+        (swap! app-state assoc :error (.-message e) :saving false)))))
+
 ;; --- 3. Componentes ---
 (defn theme-toggle []
   [:button.theme-toggle
@@ -80,7 +91,12 @@
    (for [todo (:todos @app-state)]
      (let [title (or (:title todo) (:todos/title todo) "(sem título)")]
        ^{:key (:id todo)}
-       [:li.todo-item title]))])
+       [:li.todo-item
+        [:span title]
+        [:button.delete-btn 
+         {:on-click #(delete-todo-backend (:id todo))
+          :title "Deletar tarefa"}
+         "❌"]]))])
 
 (defn app []
   (let [dark? (:dark? @app-state)]

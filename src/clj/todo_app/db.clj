@@ -53,6 +53,7 @@
           ] {:returning "*"})]
     result))
 
-;; --- Atualização e Remoção ---
-
-;; Funções de atualização e remoção removidas para reverter ao estado anterior (somente criar/listar)
+(defn delete-todo
+  "Deleta um 'todo' do banco por ID."
+  [id]
+  (jdbc/execute! db-spec ["DELETE FROM todos WHERE id = ?" id]))
