@@ -21,8 +21,10 @@
     ["/hello" {:get {:handler handler/hello-handler}}]
 
     ["/todos"
-     {:get {:handler handler/list-todos-handler}   ;; GET chama 'list'
-      :post {:handler handler/create-todo-handler}}]] ;; POST chama 'create'
+     {:get {:handler handler/list-todos-handler}   ;; GET lista
+      :post {:handler handler/create-todo-handler}}] ;; POST cria
+    ;; Rotas de update/delete removidas
+    ]]
    ))
 
 ;; --- 2. Definição da Aplicação (App) ---
@@ -34,7 +36,7 @@
    {:middleware [;; --- ADICIONE ESTE VETOR ---
                  ;; Ele deve ser o primeiro da lista
                  [wrap-cors :access-control-allow-origin [#"http://localhost:8000"]
-                            :access-control-allow-methods [:get :post :put :delete]]
+                            :access-control-allow-methods [:get :post]]
                  wrap-json-response
                  [wrap-json-body {:keywords? true}]
                  wrap-params

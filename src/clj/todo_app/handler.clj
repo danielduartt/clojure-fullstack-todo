@@ -46,3 +46,6 @@
       {:status 400 ;; :status 400 (Bad Request)
        :body {:error "O 'título' (title) é obrigatório"}})))
 
+;; --- Handler para Atualizar um Todo ---
+;; Handlers de update/delete removidos para reverter ao estado anterior.
+

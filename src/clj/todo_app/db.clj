@@ -1,6 +1,5 @@
 (ns clj.todo_app.db
-  "Este namespace gerencia os dados dos 'todos'
-   usando um banco de dados persistente SQLite.")
+  "Este namespace gerencia os dados dos 'todos' usando SQLite (somente criar e listar nesta versão).")
 
 (require '[next.jdbc :as jdbc]
          '[clojure.string :as str])
@@ -53,3 +52,7 @@
           ;; :returning "*" faz o SQLite retornar o item inserido
           ] {:returning "*"})]
     result))
+
+;; --- Atualização e Remoção ---
+
+;; Funções de atualização e remoção removidas para reverter ao estado anterior (somente criar/listar)
