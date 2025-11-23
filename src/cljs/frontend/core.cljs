@@ -30,7 +30,8 @@
   (go
     (try
       (let [response (<p! (fetch-json (str api-url "/todos") {:method "GET"}))]
-        (swap! app-state assoc :todos (:todos response) :loading false))
+        (swap! app-state assoc :todos (:todos response) :loading false)
+        (js/console.log "[DEBUG] Todos carregados:" (clj->js (:todos @app-state))))
       (catch js/Error e
         (swap! app-state assoc :error (.-message e) :loading false)))))
 
@@ -66,8 +67,12 @@
 (defn todo-list []
   [:ul.todo-list
    (for [todo (:todos @app-state)]
-     ^{:key (:id todo)}
-     [:li.todo-item (:title todo)])])
+     (let [t (or (:title todo)
+                 (:todos/title todo)
+                 (:TITLE todo) ;; fallback possíveis
+                 (pr-str todo))]
+       ^{:key (or (:id todo) (:todos/id todo) (:ID todo) (str (hash todo)))}
+       [:li.todo-item t]) )])
 
 (defn app []
   [:div.todo-app
