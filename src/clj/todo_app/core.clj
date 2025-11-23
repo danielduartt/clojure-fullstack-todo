@@ -5,7 +5,8 @@
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
             [ring.middleware.params :refer [wrap-params]]           ;; 2. O Roteador (Reitit)
             [ring.middleware.cors :refer [wrap-cors]]
-            [clj.todo_app.handler :as handler])  ;; 3. Nossas funções (handler.clj)
+            [clj.todo_app.handler :as handler]  ;; 3. Nossas funções (handler.clj)
+            [clj.todo_app.db :as db])
   
   ;; 4. IMPORTANTE: Para o 'clj -M:run' funcionar
   (:gen-class)) 
@@ -51,7 +52,8 @@
 ;; --- 4. Ponto de Entrada Principal (-main) ---
 ;; Esta é a função que o alias :run (do deps.edn) procura.
 (defn -main [& args]
-  ;; Permite que a porta seja passada como argumento (ex: clj -M:run 8080)
-  ;; ou usa "3000" como padrão.
   (let [port (Integer/parseInt (or (first args) "3000"))]
+    ;; --- ADICIONE ESTA LINHA ---
+    (db/initialize-database!) ;; Garante que a tabela exista
+    ;; --------------------------
     (start-server port)))
