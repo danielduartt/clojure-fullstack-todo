@@ -8,7 +8,7 @@
 **Daniel Duarte**
 
 ## 🔗 Link do Tutorial
-[Tutorial Original - Notion](https://www.notion.so/)
+[Tutorial Original - Notion](https://profsergiocosta.notion.site/Trabalho-em-Clojure-Desenvolvimento-de-um-Todo-List-2a7cce9750938082a001efb4661bfa92?pvs=74)
 
 ## 📖 Sobre o Projeto
 
@@ -295,5 +295,3 @@ Frontend Atualiza (Re-render Reagent)
 MIT License - Veja LICENSE para detalhes
 
 ---
-
-**Desenvolvido com ❤️ em Clojure** | Paradigma de Programação Funcional
