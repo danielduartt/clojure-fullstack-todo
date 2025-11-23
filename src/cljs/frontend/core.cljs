@@ -98,7 +98,7 @@
   [:ul.todo-list
    (for [todo (:todos @app-state)]
      (let [title (or (:title todo) (:todos/title todo) "(sem título)")
-           completed (boolean (:completed todo))]
+           completed (= 1 (:completed todo))]
        ^{:key (:id todo)}
        [:li.todo-item {:class (when completed "completed")}
         [:input.checkbox 

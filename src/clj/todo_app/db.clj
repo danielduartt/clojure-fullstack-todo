@@ -62,6 +62,6 @@
   "Alterna o status de conclusão de um 'todo'."
   [id]
   (let [todo (jdbc/execute-one! db-spec ["SELECT completed FROM todos WHERE id = ?" id])
-        new-completed (if (zero? (:todos/completed todo)) 1 0)]
-    (jdbc/execute-one! db-spec ["UPDATE todos SET completed = ? WHERE id = ?" new-completed id]
-                       {:return-keys true})))
+        new-completed (if (zero? (:todos/completed todo)) 1 0)
+        _ (jdbc/execute! db-spec ["UPDATE todos SET completed = ? WHERE id = ?" new-completed id])]
+    (jdbc/execute-one! db-spec ["SELECT * FROM todos WHERE id = ?" id])))
