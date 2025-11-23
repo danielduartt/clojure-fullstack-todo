@@ -1,29 +1,57 @@
-(ns cljs.frontend.core
-  ;; Requerimos o "coração" do Reagent (para 'r/atom')
+(ns cljs.frontend.core 
   (:require [reagent.core :as r]
-            ;; Requerimos o DOM do Reagent (para 'create-root')
-            [reagent.dom.client :as rdom]))
+            [reagent.dom.client :as rdom]
+            [clojure.string :as str]))
 
-;; --- 1. O Componente ---
-;; Um componente em Reagent é apenas uma função
-;; que retorna "Hiccup" (HTML escrito como vetores CLJS).
-;;
-;; [:h1 "Olá"] -> <h1>Olá</h1>
-(defn hello-world []
-  [:div
-   [:h1 "Olá, Alunos!"]
-   [:p "Nossa aplicação ClojureScript está funcionando."]])
+;; --- 1. O "Cérebro" (O r/atom) ---
+(defonce app-state (r/atom {:next-id 1
+                            :input-text ""
+                            :todos []}))
 
-;; --- 2. A Inicialização (React 18) ---
-;;
-;; Esta é a função que o shadow-cljs.edn chama.
-;; Ela "monta" nosso componente [hello-world]
-;; no <div id="app"> do nosso index.html.
+;; --- 2. Lógica de Negócios (Local) ---
+(defn adicionar-todo-local []
+  (swap! app-state
+         (fn [estado-atual]
+           (let [novo-titulo (:input-text estado-atual)
+                 novo-id (:next-id estado-atual)]
+             (if (str/blank? novo-titulo)
+               estado-atual
+               {:next-id (inc novo-id)
+                :input-text ""
+                :todos (conj (:todos estado-atual)
+                             {:id novo-id
+                              :title novo-titulo})})))))
+
+;; --- 3. Componentes ---
+
+(defn todo-form []
+  [:div.todo-input
+   [:input
+    {:type "text"
+     :placeholder "O que precisa ser feito?"
+     :value (:input-text @app-state)
+     :on-change #(swap! app-state assoc :input-text (-> % .-target .-value))}]
+   [:button
+    {:on-click adicionar-todo-local}
+    "Adicionar (Local)"]])
+
+(defn todo-list []
+  [:ul.todo-list
+   (for [todo (:todos @app-state)]
+     ^{:key (:id todo)}
+     [:li.todo-item
+      (:title todo)])])
+
+(defn app []
+  [:div.todo-app
+   [:h1 "Todo App (Somente Frontend)"]
+   [:p "Isto é 100% local. Recarregue (F5) para ver os dados sumirem."]
+   [todo-form]
+   [todo-list]])
+
+;; --- 4. A Inicialização (React 18) ---
 (defn ^:export init []
-  (println "Frontend App (Mini-App Local) inicializado...")
-  
+  (println "Frontend 'Todo' inicializado...")
   (let [root (rdom/create-root (js/document.getElementById "app"))]
-    ;; A linha (r/as-element) está perfeita!
-    (.render root (r/as-element [hello-world])))
-  
-  )
+    ;; CORREÇÃO 2: Renderiza o [app] em vez do [counter-app]
+    (.render root (r/as-element [app]))))
