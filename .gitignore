@@ -34,3 +34,8 @@ Thumbs.db
 
 # Calva (VS Code Clojure)
 .calva/
+
+
+package-lock.json
+
+node_modules
